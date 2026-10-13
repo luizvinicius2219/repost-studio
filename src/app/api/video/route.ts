@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { normalizeVideoUrl } from "@/lib/model";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,3 +40,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nao foi possivel interpretar a solicitacao." }, { status: 400 });
   }
 }
+

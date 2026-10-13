@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { normalizeProfileUrl, type ScanResult } from "@/lib/model";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 // Best-effort per-instance throttle. Protect this route with Vercel Deployment Protection
 // when publishing without authentication; serverless instances do not share this map.
@@ -143,3 +141,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Falha ao processar consulta do perfil." }, { status: 500 });
   }
 }
+
