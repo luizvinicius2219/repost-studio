@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -57,7 +57,7 @@ export default function Home() {
   const [uploadMessage, setUploadMessage] = useState("");
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<Toast>(null);
-  const [startDate, setStartDate] = useState(dateInput);
+  const [startDate, setStartDate] = useState("");
   const [hours, setHours] = useState("09:00,18:00");
   const [planLimit, setPlanLimit] = useState(20);
   const [preview, setPreview] = useState<{ name: string; url: string } | null>(null);
@@ -69,6 +69,7 @@ export default function Home() {
     dataRef.current = stored;
     setData(stored);
     setReady(true);
+    setStartDate(dateInput());
   }, []);
   useEffect(() => () => { if (preview?.url) URL.revokeObjectURL(preview.url); }, [preview]);
 
@@ -305,3 +306,4 @@ export default function Home() {
     {preview && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Previa de video"><div className="w-full max-w-3xl rounded-2xl border border-white/15 bg-[#0b1020] p-4"><div className="mb-3 flex items-center justify-between gap-4"><p className="truncate font-medium">{preview.name}</p><button onClick={() => setPreview(null)} aria-label="Fechar video"><X size={22}/></button></div><video controls autoPlay className="max-h-[75vh] w-full rounded-lg bg-black" src={preview.url}/></div></div>}
   </div>;
 }
+
