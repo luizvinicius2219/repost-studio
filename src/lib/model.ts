@@ -48,27 +48,50 @@ export type ScanJob = {
   message: string;
 };
 
-export type ScheduleItem = {
+export type AccountRule = {
+  weekdays: number[];
+  times: string[];
+};
+
+export type PublishingAccount = {
   id: string;
-  videoId: string;
-  at: string;
-  status: "planned";
+  name: string;
+  username?: string;
+  status: "active" | "paused";
+  rule: AccountRule;
+  notes?: string;
   createdAt: string;
 };
 
+export type ScheduleStatus = "draft" | "scheduled" | "published" | "error" | "canceled";
+
+export type ScheduleItem = {
+  id: string;
+  videoId: string;
+  accountId: string;
+  at: string;
+  status: ScheduleStatus;
+  createdAt: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  note?: string;
+};
+
 export type StudioData = {
-  version: 3;
+  version: 5;
   profiles: Profile[];
   videos: VideoItem[];
   scans: ScanJob[];
+  accounts: PublishingAccount[];
   schedules: ScheduleItem[];
 };
 
 export const EMPTY_DATA: StudioData = {
-  version: 3,
+  version: 5,
   profiles: [],
   videos: [],
   scans: [],
+  accounts: [],
   schedules: [],
 };
 

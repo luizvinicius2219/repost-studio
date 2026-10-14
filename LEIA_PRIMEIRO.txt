@@ -1,25 +1,18 @@
-REPOST STUDIO V0.3 - ATUALIZACAO COMPLETA DO FRONTEND
+REPOST STUDIO V0.5
 
-1) Salve este ZIP no seu computador (idealmente em Downloads).
-2) Abra o PowerShell.
-3) Execute:
+1. Extraia este ZIP em:
+   C:\repost-studio\frontend
 
-cd C:\repost-studio\frontend
-Expand-Archive -LiteralPath "$HOME\Downloads\Repost-Studio-V03.zip" -DestinationPath . -Force
-npm run build
+2. Substitua os arquivos quando o Windows perguntar.
 
-4) Se o build concluir com sucesso:
+3. Rode no PowerShell:
+   cd C:\repost-studio\frontend
+   npm run build
 
-git status
-git add src README_V03.md LEIA_PRIMEIRO.txt
-git commit -m "Repost Studio v0.3 - scanner biblioteca e agendamento"
-git push origin main
+4. Se o build estiver aprovado, envie ao GitHub:
+   git add .
+   git commit -m "Repost Studio V0.5 - contas e agenda editorial"
+   git push origin main
 
-A Vercel fara o deploy da branch main.
-
-ATENCAO: A VARREDURA DE PERFIL PUBLICO PODE SER BLOQUEADA PELO TIKTOK.
-A AGENDA NAO FAZ PUBLICACAO AUTOMATICA.
-O ARMAZENAMENTO DE MP4 E LOCAL NO NAVEGADOR E NAO SINCRONIZA ENTRE DISPOSITIVOS.
-O ZIP NAO CONTEM CHAVES SECRETAS.
-
-Mais detalhes em README_V03.md.
+A V0.5 organiza contas, videos, dias, horarios, calendario e historico.
+Ela ainda NAO publica automaticamente no TikTok.

@@ -1,0 +1,45 @@
+REPOST STUDIO V0.4 - MOTOR LOCAL EXPERIMENTAL
+==============================================
+
+Objetivo: informar SOMENTE uma URL de perfil TikTok, descobrir URLs de videos
+publicamente visiveis e baixar automaticamente os arquivos disponiveis.
+
+1. Extraia esta pasta em C:\repost-studio\frontend\motor-v04
+2. Execute INSTALAR_REPOST.bat (uma vez).
+3. Execute INICIAR_REPOST.bat.
+4. Cole a URL do perfil, por exemplo https://www.tiktok.com/@futuroinexplicavel
+5. Clique 'Iniciar varredura + downloads'.
+6. O navegador Edge/Chromium sera aberto para ver os videos publicos. Nao feche
+   essa janela durante a varredura. Se o TikTok solicitar uma verificacao
+   normal, resolva-a no navegador. Nenhuma credencial e pedida pelo script.
+7. Aguarde o fim. Os MP4 ficarao em downloads\USUARIO\.
+
+Os links sao registrados imediatamente em dados\USUARIO\urls.txt e
+videos.json. Se houver bloqueio ou interrupcao, o historico e preservado.
+Repetir a varredura nao baixa novamente arquivos ja existentes.
+
+IMPORTANTE
+- Beta local, NAO e uma atualizacao integrada ao site da Vercel.
+- Nao garante encontrar todos os videos nem acesso sem restricoes.
+- O TikTok pode bloquear ou exigir verificacoes de navegador.
+- O download nao e garantidamente sem marca d'agua: o programa prefere
+  uma variante MP4 diferente da identificada como 'download', quando existe.
+- Nao acessa videos privados nem quebra restricoes de acesso.
+- Baixe e reutilize apenas videos seus ou com permissao de uso.
+- Sessao do navegador (quando criada) e guardada LOCALMENTE em dados\navegador.
+  Nao compartilhe esta pasta, especialmente se fizer login no TikTok.
+- Para parar, clique 'Parar apos a etapa atual'.
+- Este programa usa apenas bibliotecas gratuitas, sem mensalidade. O servico
+  TikTok pode impor seus proprios limites.
+
+ARQUIVOS
+  motor_repost.py    interface, varredura e download
+  INICIAR_REPOST.bat abre o programa
+  INSTALAR_REPOST.bat instala dependencias
+  dados\             URLs, registros e sessao local
+  downloads\         MP4 disponiveis
+
+DADOS PESSOAIS
+Este programa nao envia historico para terceiros. O navegador consulta
+TikTok e o yt-dlp acessa os arquivos dos videos. O programa nao tem
+integracao com Supabase, Vercel ou GitHub nesta versao.

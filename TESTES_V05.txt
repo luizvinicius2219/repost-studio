@@ -1,0 +1,27 @@
+REPOST STUDIO V0.5 - VALIDACOES REALIZADAS
+
+1. Planner / regras de agenda
+   - Normalizacao e ordenacao de horarios: OK
+   - Rejeicao de horario invalido: OK
+   - Video usado em Conta A deixa de ficar disponivel para Conta A: OK
+   - Mesmo video continua disponivel para Conta B: OK
+   - Geracao por dias da semana e horarios: OK
+   - Slots passados sao ignorados: OK
+   - Slot ocupado na mesma conta nao e duplicado: OK
+   Resultado: 11 assercoes OK
+
+2. Migracao V0.3 -> V0.5
+   - Versao convertida para 5: OK
+   - Perfis/videos preservados: OK
+   - Agenda antiga preservada em conta de migracao: OK
+   - Status antigo convertido para rascunho: OK
+   - Novo storage V0.5 criado: OK
+   Resultado: 6 assercoes OK
+
+3. TypeScript / TSX
+   - Arquivos de UI e bibliotecas analisados com TypeScript 5.8 e stubs locais de React/Lucide: OK
+   - Sem erros de sintaxe/estrutura detectados.
+
+4. Next.js production build
+   - NAO executado neste ambiente porque as dependencias Next/React do projeto nao estao instaladas aqui.
+   - Executar obrigatoriamente `npm run build` no C:\repost-studio\frontend antes de git commit/push.

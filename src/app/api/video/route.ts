@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { normalizeVideoUrl } from "@/lib/model";
 
 
@@ -40,4 +40,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nao foi possivel interpretar a solicitacao." }, { status: 400 });
   }
 }
-

@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Repost Studio - dados locais do motor
+motor-v04/dados/
+motor-v04/downloads/
+motor-v04/.venv/
+motor-v04/.pytest_cache/
+motor-v04/**/__pycache__/
+*.part
