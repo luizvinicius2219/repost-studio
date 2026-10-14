@@ -39,11 +39,12 @@ export type OnlineVideo = {
   storage_path: string | null;
   file_name: string | null;
   file_size_bytes: number | null;
-  status: "discovered" | "downloading" | "downloaded" | "uploading" | "uploaded" | "failed";
+  status: "discovered" | "downloading" | "downloaded" | "uploading" | "uploaded" | "failed" | "published";
   error_message: string | null;
   metadata: Record<string, unknown>;
   discovered_at: string;
   uploaded_at: string | null;
+  storage_deleted_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -74,6 +75,33 @@ export type PostRow = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  title: string | null;
+  privacy_level: string | null;
+  allow_comment: boolean;
+  allow_duet: boolean;
+  allow_stitch: boolean;
+  brand_content_toggle: boolean;
+  brand_organic_toggle: boolean;
+  is_aigc: boolean;
+  rights_confirmed: boolean;
+  approved_at: string | null;
+  tiktok_publish_id: string | null;
+  tiktok_post_id: string | null;
+  publish_started_at: string | null;
+  last_status_check_at: string | null;
+  attempt_count: number;
+};
+
+export type TikTokConnectionSummary = {
+  account_id: string;
+  open_id: string;
+  creator_username: string | null;
+  creator_nickname: string | null;
+  avatar_url: string | null;
+  scope: string;
+  access_expires_at: string;
+  connected_at: string;
+  updated_at: string;
 };
 
 export type StudioSnapshot = {
@@ -83,5 +111,10 @@ export type StudioSnapshot = {
   videos: OnlineVideo[];
   jobs: SyncJobRow[];
   posts: PostRow[];
+  tiktokConnections: TikTokConnectionSummary[];
+  storageBytes: number;
+  storageLimitBytes: number;
+  publisherConfigured: boolean;
+  tiktokAudited: boolean;
   serverTime: string;
 };

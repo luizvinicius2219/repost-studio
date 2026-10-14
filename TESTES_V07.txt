@@ -1,0 +1,23 @@
+CHECKLIST V0.7
+
+[ ] SUPABASE_V07.sql executou com sucesso
+[ ] npm run build passou
+[ ] Vercel ficou Ready
+[ ] Dashboard mostra V0.7
+[ ] Storage mostra uso aproximado
+[ ] Conta cadastrada mostra botao Conectar TikTok
+[ ] OAuth retorna ao Repost Studio e conta fica Conectada
+[ ] URL prefix do TikTok foi verificado
+[ ] Cron aparece em cron.job como ativo
+[ ] Item agendado aparece como Revisar
+[ ] Tela de revisao mostra video e duracao
+[ ] Privacidade precisa ser escolhida manualmente
+[ ] Comentario/Dueto/Stitch iniciam desmarcados
+[ ] Conteudo comercial exige classificacao quando ativado
+[ ] Direitos e consentimento sao obrigatorios
+[ ] Item aprovado fica Pronto
+[ ] No horario, status muda para Publicando
+[ ] Depois muda para Publicado ou Erro
+[ ] MP4 e removido do bucket quando nao ha outro uso pendente/falho
+
+Para cliente TikTok nao auditado, teste somente SELF_ONLY em conta privada.

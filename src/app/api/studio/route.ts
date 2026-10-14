@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { verifyStudioRequest } from "@/lib/server-auth";
+import { disconnectTikTokAccount, getFreshTikTokAccessToken } from "@/lib/tiktok-connection";
+import { queryCreatorInfo } from "@/lib/tiktok";
 
 function profileFromUrl(input: unknown) {
   if (typeof input !== "string" || input.length > 240) throw new Error("Informe a URL do perfil TikTok.");
@@ -44,18 +46,25 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = getSupabaseAdmin();
-    const [profiles, accounts, slots, videos, jobs, posts] = await Promise.all([
+    const [profiles, accounts, slots, videos, jobs, posts, tiktokConnections] = await Promise.all([
       db.from("source_profiles").select("*").order("created_at", { ascending: false }),
       db.from("publishing_accounts").select("*").order("created_at", { ascending: false }),
       db.from("schedule_slots").select("*").order("weekday").order("time_local"),
       db.from("videos").select("*").order("discovered_at", { ascending: false }).limit(3000),
       db.from("sync_jobs").select("*").order("requested_at", { ascending: false }).limit(300),
       db.from("posts").select("*").order("scheduled_at", { ascending: true }).limit(3000),
+      db.from("tiktok_connections").select("account_id,open_id,creator_username,creator_nickname,avatar_url,scope,access_expires_at,connected_at,updated_at"),
     ]);
 
-    for (const result of [profiles, accounts, slots, videos, jobs, posts]) {
+    for (const result of [profiles, accounts, slots, videos, jobs, posts, tiktokConnections]) {
       if (result.error) throw result.error;
     }
+
+    const storageBytes = (videos.data ?? []).reduce((sum: number, video: { storage_path?: string | null; status?: string; file_size_bytes?: number | null }) => {
+      if (!video.storage_path || video.status !== "uploaded") return sum;
+      return sum + Math.max(0, Number(video.file_size_bytes) || 0);
+    }, 0);
+    const storageLimitBytes = Math.max(1, Number(process.env.SUPABASE_STORAGE_SOFT_LIMIT_BYTES) || 1_000_000_000);
 
     return NextResponse.json({
       profiles: profiles.data ?? [],
@@ -64,6 +73,20 @@ export async function GET(request: NextRequest) {
       videos: videos.data ?? [],
       jobs: jobs.data ?? [],
       posts: posts.data ?? [],
+      tiktokConnections: tiktokConnections.data ?? [],
+      storageBytes,
+      storageLimitBytes,
+      publisherConfigured: Boolean(
+        process.env.TIKTOK_CLIENT_KEY &&
+        process.env.TIKTOK_CLIENT_SECRET &&
+        process.env.TIKTOK_REDIRECT_URI &&
+        process.env.TIKTOK_TOKEN_ENCRYPTION_KEY &&
+        process.env.TIKTOK_MEDIA_BASE_URL &&
+        process.env.PUBLISH_CRON_SECRET &&
+        process.env.TIKTOK_URL_VERIFY_FILENAME &&
+        process.env.TIKTOK_URL_VERIFY_CONTENT
+      ),
+      tiktokAudited: process.env.TIKTOK_CLIENT_AUDITED === "true",
       serverTime: new Date().toISOString(),
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
@@ -94,6 +117,12 @@ export async function POST(request: NextRequest) {
     if (action === "queue_sync") {
       const profileId = String(body.profileId ?? "");
       if (!profileId) throw new Error("Perfil nao informado.");
+
+      const storageLimit = Math.max(1, Number(process.env.SUPABASE_STORAGE_SOFT_LIMIT_BYTES) || 1_000_000_000);
+      const stored = await db.from("videos").select("file_size_bytes,storage_path,status");
+      if (stored.error) throw stored.error;
+      const usedBytes = (stored.data ?? []).reduce((sum: number, item: { storage_path?: string | null; status?: string; file_size_bytes?: number | null }) => item.storage_path && item.status === "uploaded" ? sum + Math.max(0, Number(item.file_size_bytes) || 0) : sum, 0);
+      if (usedBytes >= storageLimit * 0.85) throw new Error("Storage acima de 85% do limite configurado. Publique ou libere espaco antes de iniciar nova sincronizacao.");
 
       const existing = await db.from("sync_jobs")
         .select("*")
@@ -147,6 +176,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    if (action === "disconnect_tiktok") {
+      const accountId = String(body.accountId ?? "");
+      if (!accountId) throw new Error("Conta nao informada.");
+      await disconnectTikTokAccount(accountId);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === "tiktok_creator_info") {
+      const accountId = String(body.accountId ?? "");
+      if (!accountId) throw new Error("Conta nao informada.");
+      const { accessToken } = await getFreshTikTokAccessToken(accountId);
+      const creator = await queryCreatorInfo(accessToken);
+      return NextResponse.json({ ok: true, creator });
+    }
+
     if (action === "create_posts") {
       const accountId = String(body.accountId ?? "");
       const items = Array.isArray(body.items) ? body.items : [];
@@ -162,12 +206,70 @@ export async function POST(request: NextRequest) {
         const scheduledAt = String(value.scheduledAt ?? "");
         const date = new Date(scheduledAt);
         if (!videoId || Number.isNaN(date.getTime())) throw new Error("Item de agenda invalido.");
-        return { account_id: accountId, video_id: videoId, scheduled_at: date.toISOString(), status: "scheduled" };
+        return {
+          account_id: accountId,
+          video_id: videoId,
+          scheduled_at: date.toISOString(),
+          status: "scheduled",
+          brand_content_toggle: false,
+          brand_organic_toggle: false,
+          is_aigc: false,
+          rights_confirmed: false,
+          approved_at: null,
+        };
       });
 
       const { data, error } = await db.from("posts").insert(rows).select("*");
       if (error) throw error;
       return NextResponse.json({ ok: true, count: data?.length ?? rows.length });
+    }
+
+    if (action === "approve_post") {
+      const id = String(body.id ?? "");
+      const title = String(body.title ?? "").trim().slice(0, 2200);
+      const privacyLevel = String(body.privacyLevel ?? "");
+      const rightsConfirmed = body.rightsConfirmed === true;
+      const consentConfirmed = body.consentConfirmed === true;
+      if (!id || !privacyLevel) throw new Error("Selecione a privacidade da publicacao.");
+      if (!rightsConfirmed) throw new Error("Confirme que voce possui os direitos/permissao para publicar o conteudo.");
+      if (!consentConfirmed) throw new Error("Confirme o consentimento para envio ao TikTok no horario agendado.");
+
+      const post = await db.from("posts").select("id,account_id").eq("id", id).single();
+      if (post.error) throw post.error;
+      const { accessToken } = await getFreshTikTokAccessToken(post.data.account_id);
+      const creator = await queryCreatorInfo(accessToken);
+      if (!creator.privacy_level_options.includes(privacyLevel)) throw new Error("Opcao de privacidade indisponivel para esta conta.");
+      if (process.env.TIKTOK_CLIENT_AUDITED !== "true" && privacyLevel !== "SELF_ONLY") {
+        throw new Error("Cliente TikTok ainda nao auditado: selecione SELF_ONLY para testes privados.");
+      }
+
+      const allowComment = Boolean(body.allowComment);
+      const allowDuet = Boolean(body.allowDuet);
+      const allowStitch = Boolean(body.allowStitch);
+      const brandContentToggle = Boolean(body.brandContentToggle);
+      const brandOrganicToggle = Boolean(body.brandOrganicToggle);
+      const isAigc = Boolean(body.isAigc);
+      if (allowComment && creator.comment_disabled) throw new Error("Comentarios estao desativados nessa conta.");
+      if (allowDuet && creator.duet_disabled) throw new Error("Dueto esta desativado nessa conta.");
+      if (allowStitch && creator.stitch_disabled) throw new Error("Stitch esta desativado nessa conta.");
+      if (brandContentToggle && privacyLevel === "SELF_ONLY") throw new Error("Conteudo de parceria paga nao pode ser publicado como Somente eu.");
+
+      const { error } = await db.from("posts").update({
+        title,
+        privacy_level: privacyLevel,
+        allow_comment: allowComment,
+        allow_duet: allowDuet,
+        allow_stitch: allowStitch,
+        brand_content_toggle: brandContentToggle,
+        brand_organic_toggle: brandOrganicToggle,
+        is_aigc: isAigc,
+        rights_confirmed: true,
+        approved_at: new Date().toISOString(),
+        error_message: null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", id);
+      if (error) throw error;
+      return NextResponse.json({ ok: true });
     }
 
     if (action === "update_post") {

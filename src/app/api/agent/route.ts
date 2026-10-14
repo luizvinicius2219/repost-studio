@@ -92,6 +92,12 @@ export async function POST(request: NextRequest) {
       const fileSize = Math.max(0, Number(body.fileSize) || 0);
       if (!jobId || !fileSize) throw new Error("Arquivo invalido.");
 
+      const storageLimit = Math.max(1, Number(process.env.SUPABASE_STORAGE_SOFT_LIMIT_BYTES) || 1_000_000_000);
+      const stored = await db.from("videos").select("file_size_bytes,storage_path,status");
+      if (stored.error) throw stored.error;
+      const usedBytes = (stored.data ?? []).reduce((sum: number, item: { storage_path?: string | null; status?: string; file_size_bytes?: number | null }) => item.storage_path && item.status === "uploaded" ? sum + Math.max(0, Number(item.file_size_bytes) || 0) : sum, 0);
+      if (usedBytes + fileSize > storageLimit) throw new Error("Limite de armazenamento configurado atingido. Publique/remova arquivos antes de enviar novos MP4.");
+
       const job = await db.from("sync_jobs").select("source_profile_id").eq("id", jobId).single();
       if (job.error) throw job.error;
       const profile = await db.from("source_profiles").select("id,username").eq("id", job.data.source_profile_id).single();

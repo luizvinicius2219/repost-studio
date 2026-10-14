@@ -1,0 +1,26 @@
+REPOST STUDIO V0.7 - ORDEM DE INSTALACAO
+
+1) Supabase SQL Editor:
+   execute SUPABASE_V07.sql
+
+2) Extraia este ZIP por cima de:
+   C:\repost-studio\frontend
+
+3) Rode:
+   cd C:\repost-studio\frontend
+   npm run build
+
+4) Se o build passar:
+   git add .
+   git commit -m "Repost Studio V0.7 - TikTok OAuth e publicador online"
+   git push origin main
+
+5) Na Vercel, cadastre as variaveis TikTok descritas em README_V07.md.
+
+6) Configure o aplicativo no TikTok for Developers e verifique o prefixo:
+   https://repost-studio.vercel.app/api/tiktok/media/
+
+7) Depois que a Vercel estiver pronta, configure o Cron usando
+   CONFIGURAR_CRON_V07.sql.
+
+NAO cole chaves secretas em chat ou GitHub.
