@@ -1,0 +1,19 @@
+REPOST STUDIO V0.6
+
+Este ZIP e uma SOBREPOSICAO do projeto existente.
+Nao apaga motor-v04/dados nem motor-v04/downloads.
+
+ANTES DO BUILD:
+1. Gere uma chave propria para REPOST_STUDIO_ACCESS_KEY.
+2. Adicione a mesma chave em C:\repost-studio\frontend\.env.local.
+3. Adicione a mesma variavel na Vercel (Production, Preview, Development).
+
+Exemplo de .env.local:
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=SUA_CHAVE_SECRETA
+REPOST_STUDIO_ACCESS_KEY=SUA_CHAVE_DO_REPOST
+
+NAO envie nenhuma dessas chaves para o GitHub.
+
+Depois execute npm run build.
+So faca commit/push quando o build terminar aprovado.

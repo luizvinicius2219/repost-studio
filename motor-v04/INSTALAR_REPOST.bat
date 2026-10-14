@@ -1,10 +1,10 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Instalando bibliotecas gratuitas do Repost Studio...
-py -m pip install -U "yt-dlp[default,curl-cffi]" playwright
+echo Instalando bibliotecas gratuitas do Repost Studio V0.6...
+py -m pip install -U "yt-dlp[default,curl-cffi]" playwright requests
 if errorlevel 1 (
- echo ERRO: instalacao de Python falhou.
+ echo ERRO: instalacao Python falhou.
  pause
  exit /b 1
 )

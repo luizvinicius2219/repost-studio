@@ -1,0 +1,11 @@
+TESTES EXECUTADOS ANTES DA ENTREGA
+
+[OK] python -m py_compile motor-v04/motor_repost.py
+[OK] Checagem TypeScript/TSX das novas rotas e painel usando contratos de modulo locais.
+[OK] Nenhuma SUPABASE_SERVICE_ROLE_KEY e enviada ao navegador ou ao agente.
+[OK] Upload desenhado com URL assinada temporaria do Supabase Storage.
+[OK] Bucket esperado: videos (privado), conforme SQL V0.6 ja executado.
+
+PENDENTE NO COMPUTADOR DO USUARIO
+- npm run build com as dependencias reais Next.js 16 / React 19 do projeto.
+- Teste end-to-end Vercel -> sync_jobs -> agente local -> Storage.
