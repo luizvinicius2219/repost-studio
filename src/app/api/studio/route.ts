@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { verifyStudioRequest } from "@/lib/server-auth";
 import { disconnectTikTokAccount, getFreshTikTokAccessToken } from "@/lib/tiktok-connection";
 import { queryCreatorInfo } from "@/lib/tiktok";
+import { bufferConfigured } from "@/lib/buffer-api";
 
 function profileFromUrl(input: unknown) {
   if (typeof input !== "string" || input.length > 240) throw new Error("Informe a URL do perfil TikTok.");
@@ -76,7 +77,9 @@ export async function GET(request: NextRequest) {
       tiktokConnections: tiktokConnections.data ?? [],
       storageBytes,
       storageLimitBytes,
-      publisherConfigured: Boolean(
+      publisher: process.env.PUBLISH_PROVIDER === "buffer" ? "buffer" : "tiktok",
+      bufferConfigured: bufferConfigured(),
+      publisherConfigured: process.env.PUBLISH_PROVIDER === "buffer" ? bufferConfigured() : Boolean(
         process.env.TIKTOK_CLIENT_KEY &&
         process.env.TIKTOK_CLIENT_SECRET &&
         process.env.TIKTOK_REDIRECT_URI &&

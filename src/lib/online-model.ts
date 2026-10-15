@@ -16,6 +16,8 @@ export type PublishingAccountRow = {
   label: string | null;
   is_active: boolean;
   timezone: string;
+  buffer_channel_id?: string | null;
+  buffer_organization_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -90,6 +92,10 @@ export type PostRow = {
   publish_started_at: string | null;
   last_status_check_at: string | null;
   attempt_count: number;
+  buffer_post_id?: string | null;
+  buffer_status?: string | null;
+  buffer_dispatch_state?: string | null;
+  buffer_last_checked_at?: string | null;
 };
 
 export type TikTokConnectionSummary = {
@@ -115,6 +121,8 @@ export type StudioSnapshot = {
   storageBytes: number;
   storageLimitBytes: number;
   publisherConfigured: boolean;
+  publisher: "buffer" | "tiktok";
+  bufferConfigured: boolean;
   tiktokAudited: boolean;
   serverTime: string;
 };

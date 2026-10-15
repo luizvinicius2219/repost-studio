@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createMediaToken } from "@/lib/tiktok-crypto";
 import { getFreshTikTokAccessToken } from "@/lib/tiktok-connection";
 import { fetchPublishStatus, initializeDirectPostFromUrl, queryCreatorInfo } from "@/lib/tiktok";
+import { syncBufferPosts } from "@/lib/buffer-publisher";
 
 function verifyCron(request: NextRequest) {
   const expected = process.env.PUBLISH_CRON_SECRET ?? "";
@@ -157,6 +158,9 @@ async function startDuePosts() {
 async function run(request: NextRequest) {
   if (!verifyCron(request)) return NextResponse.json({ error: "Invalid publish cron secret." }, { status: 401 });
   try {
+    if (process.env.PUBLISH_PROVIDER === "buffer") {
+      return NextResponse.json({ ok: true, provider: "buffer", sync: await syncBufferPosts(5) }, { headers: { "Cache-Control": "no-store" } });
+    }
     const settled = await settlePublishing();
     const started = await startDuePosts();
     return NextResponse.json({ ok: true, settled, started, at: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
